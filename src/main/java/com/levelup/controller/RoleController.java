@@ -7,11 +7,8 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
 
 import com.levelup.dto.RoleDto;
 import com.levelup.service.RoleService;
@@ -44,14 +41,14 @@ public class RoleController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Object> getRole(@org.springframework.web.bind.annotation.PathVariable Long id){
+    public ResponseEntity<Object> getRole(@PathVariable Long id){
         RoleDto dto = roleService.findById(id);
         if (dto == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message","Rol no encontrado"));
         return ResponseEntity.ok(dto);
     }
 
-    @org.springframework.web.bind.annotation.PutMapping("/{id}")
-    public ResponseEntity<Object> updateRole(@org.springframework.web.bind.annotation.PathVariable Long id, @RequestBody RoleDto dto){
+    @PutMapping("/{id}")
+    public ResponseEntity<Object> updateRole(@PathVariable Long id, @RequestBody RoleDto dto){
         try{
             RoleDto updated = roleService.updateRole(id, dto);
             return ResponseEntity.ok(Map.of("message","Rol actualizado","role", updated));
@@ -60,12 +57,15 @@ public class RoleController {
         }
     }
 
-    @org.springframework.web.bind.annotation.DeleteMapping("/{id}")
-    public ResponseEntity<Object> deleteRole(@org.springframework.web.bind.annotation.PathVariable Long id){
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Object> deleteRole(@PathVariable Long id){
         try{
             roleService.deleteRole(id);
             return ResponseEntity.ok(Map.of("message","Rol eliminado"));
         } catch (Exception e){
+            if (e.getMessage() != null && e.getMessage().contains("not found")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message","Rol no encontrado","error", e.getMessage()));
+            }
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message","Error al eliminar rol","error", e.getMessage()));
         }
     }

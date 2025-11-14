@@ -38,6 +38,9 @@ public class RoleService {
     }
 
     public void deleteRole(Long id){
+        if (!roleRepo.existsById(id)) {
+            throw new IllegalArgumentException("Role not found");
+        }
         roleRepo.deleteById(id);
     }
 }
