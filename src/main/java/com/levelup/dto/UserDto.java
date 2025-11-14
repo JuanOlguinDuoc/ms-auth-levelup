@@ -25,7 +25,7 @@ public class UserDto {
         }
         return UserDto.builder()
                 .id( u.getId() )
-                .run (u.getRun())
+                .run( u.getRun() )
                 .firstName( u.getFirstName() )
                 .lastName( u.getLastName() )
                 .email( u.getEmail() )
@@ -40,6 +40,7 @@ public class UserDto {
         }
         return User.builder()
                 .id( dto.getId() )
+                .run( dto.getRun() )
                 .firstName( dto.getFirstName() )
                 .lastName( dto.getLastName() )
                 .email( dto.getEmail() )
