@@ -23,14 +23,14 @@ public class UserDto {
         if ( u == null ) {
             return null;
         }
-        return UserDto.builder()
+    return UserDto.builder()
                 .id( u.getId() )
                 .run( u.getRun() )
                 .firstName( u.getFirstName() )
                 .lastName( u.getLastName() )
                 .email( u.getEmail() )
                 .password( u.getPassword() )
-                .role( u.getRole() )
+        .role( u.getRole() != null ? u.getRole().getName() : null)
                 .build();
     }
 
@@ -38,15 +38,15 @@ public class UserDto {
         if ( dto == null ) {
             return null;
         }
-        return User.builder()
-                .id( dto.getId() )
-                .run( dto.getRun() )
-                .firstName( dto.getFirstName() )
-                .lastName( dto.getLastName() )
-                .email( dto.getEmail() )
-                .password( dto.getPassword() )
-                .role( dto.getRole() )
-                .build();
+    return User.builder()
+        .id( dto.getId() )
+        .run( dto.getRun() )
+        .firstName( dto.getFirstName() )
+        .lastName( dto.getLastName() )
+        .email( dto.getEmail() )
+        .password( dto.getPassword() )
+        // role will be resolved and assigned in the service
+        .build();
     }
 
 }

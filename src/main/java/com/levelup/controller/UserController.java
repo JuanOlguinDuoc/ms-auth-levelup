@@ -33,7 +33,9 @@ public class UserController {
     public ResponseEntity<Map<String, Object>> createUser(@RequestBody UserDto dto) {
         Map<String, Object> resp = new HashMap<>();
         try {
+            UserDto created = service.createUser(dto);
             resp.put("message", "Usuario generado correctamente");
+            resp.put("user", created);
             return ResponseEntity.status(HttpStatus.CREATED).body(resp);
         } catch (Exception e) {
             resp.put("message", "Error al crear usuario");
