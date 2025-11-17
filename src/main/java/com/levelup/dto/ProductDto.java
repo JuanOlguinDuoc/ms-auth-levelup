@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Data
 @Builder
@@ -17,9 +19,10 @@ public class ProductDto {
     private String imagenUrl;
     private String titulo;
     private String atributos;
+    private Integer stock;
     private Integer precio;
     private String categoria;
-    private String plataforma;
+    private Set<String> plataforma;
     private Boolean enOferta;
     private Integer descuento;
     private LocalDate fechaInicioOferta;
@@ -32,9 +35,10 @@ public class ProductDto {
                 .imagenUrl(p.getImagenUrl())
                 .titulo(p.getTitulo())
                 .atributos(p.getAtributos())
+                .stock(p.getStock())
                 .precio(p.getPrecio())
-                .categoria(p.getCategoria())
-                .plataforma(p.getPlataforma())
+                .categoria(p.getCategoria() != null ? p.getCategoria().getNombre() : null)
+                .plataforma(p.getPlataforma().stream().map(pl -> pl.getNombre()).collect(Collectors.toSet()))
                 .enOferta(p.getEnOferta())
                 .descuento(p.getDescuento())
                 .fechaInicioOferta(p.getFechaInicioOferta())
@@ -49,9 +53,10 @@ public class ProductDto {
                 .imagenUrl(dto.getImagenUrl())
                 .titulo(dto.getTitulo())
                 .atributos(dto.getAtributos())
+                .stock(dto.getStock())
                 .precio(dto.getPrecio())
-                .categoria(dto.getCategoria())
-                .plataforma(dto.getPlataforma())
+                // categoria entity will be resolved in the service
+                // plataforma entities will be resolved in the service
                 .enOferta(dto.getEnOferta())
                 .descuento(dto.getDescuento())
                 .fechaInicioOferta(dto.getFechaInicioOferta())

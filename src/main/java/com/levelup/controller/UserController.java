@@ -75,7 +75,6 @@ public class UserController {
     @PatchMapping("/{id}")
     public ResponseEntity<Object> patchUser(@PathVariable Long id, @RequestBody Map<String, Object> updates){
         try{
-            // ignore id, run, role keys if present
             updates.remove("id");
             updates.remove("run");
             updates.remove("role");
