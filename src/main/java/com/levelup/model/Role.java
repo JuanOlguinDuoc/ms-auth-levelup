@@ -1,5 +1,7 @@
 package com.levelup.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,5 +21,10 @@ public class Role {
 
     @Column(unique = true, nullable = false)
     private String name;
+
+    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+    public Role(String name) {
+        this.name = name;
+    }
 
 }

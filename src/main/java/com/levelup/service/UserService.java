@@ -31,6 +31,15 @@ public class UserService {
         if (dto.getRole() == null) {
             throw new IllegalArgumentException("role is required");
         }
+        // check duplicates email and run
+        if (userRepo.existsByEmail(dto.getEmail())) {
+            throw new IllegalArgumentException("El correo ya está registrado");
+        }
+
+        if (dto.getRun() != null && userRepo.existsByRun(dto.getRun())) {
+            throw new IllegalArgumentException("El RUN ya está registrado");
+        }
+
         Role role = roleRepo.findByName(dto.getRole()).orElseThrow(() -> new IllegalArgumentException("Role not found: " + dto.getRole()));
         entity.setRole(role);
         User saved = userRepo.save(entity);
@@ -39,6 +48,10 @@ public class UserService {
 
     public UserDto findById(Long id){
         return userRepo.findById(id).map(UserDto::fromEntity).orElse(null);
+    }
+
+    public UserDto findByEmail(String email){
+        return userRepo.findByEmail(email).map(UserDto::fromEntity).orElse(null);
     }
 
     public UserDto updateUser(Long id, UserDto dto){

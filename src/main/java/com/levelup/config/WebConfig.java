@@ -1,5 +1,9 @@
 package com.levelup.config;
 
+/*
+ * WebConfig deshabilitado (comentado) para usar la configuración de SecurityConfig.
+ * Si necesitas restaurarlo, descomenta este bloque.
+ *
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -18,9 +22,11 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/api/**")
-                .allowedOrigins("http://localhost:5173")
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                .allowCredentials(true);
+        registry.addMapping("/**")
+                .allowedOrigins("*") // dev only
+                .allowedMethods("*")
+                .allowedHeaders("*")
+                .allowCredentials(false); // no credentials with "*"
     }
 }
+*/

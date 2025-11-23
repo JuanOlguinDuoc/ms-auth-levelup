@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.HttpStatus;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/v1/users")
@@ -23,8 +24,11 @@ public class UserController {
     private UserService service;
 
     @GetMapping
-    public List<User> userList() {
-        return service.getUsers();
+    public List<UserDto> userList() {
+        return service.getUsers()
+                      .stream()
+                      .map(UserDto::fromEntity)
+                      .collect(Collectors.toList());
     }
 
     @PostMapping
@@ -42,11 +46,40 @@ public class UserController {
         }
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Object> getUser(@PathVariable Long id) {
-        UserDto dto = service.findById(id);
+    @GetMapping("/by-email/{email}")
+    public ResponseEntity<Object> getUser(@PathVariable String email, @PathVariable String password) {
+        // email will be URL-decoded by Spring automatically
+        UserDto dto = service.findByEmail(email);
         if (dto == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message","Usuario no encontrado"));
+
+        if (password != null) {
+            // If password provided, validate it
+            if (!password.equals(dto.getPassword())) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message","Credenciales inválidas"));
+            }
+        }
+
         return ResponseEntity.ok(dto);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<Object> login(@RequestBody Map<String, String> payload) {
+        String email = payload.get("email");
+        String password = payload.get("password");
+        if (email == null || password == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message","Email y password son requeridos"));
+        }
+
+        UserDto user = service.findByEmail(email);
+        if (user == null || !password.equals(user.getPassword())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message","Credenciales inválidas"));
+        }
+
+        String token = "token-" + user.getEmail() + "-" + System.currentTimeMillis();
+        Map<String, Object> resp = new HashMap<>();
+        resp.put("token", token);
+        resp.put("user", user);
+        return ResponseEntity.ok(resp);
     }
 
     @PutMapping("/{id}")
@@ -85,7 +118,6 @@ public class UserController {
         }
     }
     
-
 
 
 

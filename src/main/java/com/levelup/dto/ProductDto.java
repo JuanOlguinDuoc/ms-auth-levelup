@@ -55,8 +55,6 @@ public class ProductDto {
                 .atributos(dto.getAtributos())
                 .stock(dto.getStock())
                 .precio(dto.getPrecio())
-                // categoria entity will be resolved in the service
-                // plataforma entities will be resolved in the service
                 .enOferta(dto.getEnOferta())
                 .descuento(dto.getDescuento())
                 .fechaInicioOferta(dto.getFechaInicioOferta())
