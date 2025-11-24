@@ -16,6 +16,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "Usuarios", description = "Gestión de usuarios del sistema")
 @RestController
 @RequestMapping("api/v1/users")
 public class UserController {
@@ -23,6 +29,8 @@ public class UserController {
     @Autowired
     private UserService service;
 
+    @Operation(summary = "Listar todos los usuarios")
+    @ApiResponse(responseCode = "200", description = "Lista de usuarios obtenida exitosamente")
     @GetMapping
     public List<UserDto> userList() {
         return service.getUsers()
@@ -31,6 +39,11 @@ public class UserController {
                       .collect(Collectors.toList());
     }
 
+    @Operation(summary = "Crear un nuevo usuario")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Usuario creado exitosamente"),
+        @ApiResponse(responseCode = "400", description = "Error al crear el usuario")
+    })
     @PostMapping
     public ResponseEntity<Map<String, Object>> createUser(@RequestBody UserDto dto) {
         Map<String, Object> resp = new HashMap<>();
@@ -46,6 +59,12 @@ public class UserController {
         }
     }
 
+    @Operation(summary = "Buscar usuario por email")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Usuario encontrado"),
+        @ApiResponse(responseCode = "404", description = "Usuario no encontrado"),
+        @ApiResponse(responseCode = "401", description = "Credenciales inválidas")
+    })
     @GetMapping("/by-email/{email}")
     public ResponseEntity<Object> getUser(@PathVariable String email, @RequestParam(required = false) String password) {
         // email will be URL-decoded by Spring automatically
@@ -62,6 +81,12 @@ public class UserController {
         return ResponseEntity.ok(dto);
     }
 
+    @Operation(summary = "Iniciar sesión")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Login exitoso"),
+        @ApiResponse(responseCode = "400", description = "Email y password son requeridos"),
+        @ApiResponse(responseCode = "401", description = "Credenciales inválidas")
+    })
     @PostMapping("/login")
     public ResponseEntity<Object> login(@RequestBody Map<String, String> payload) {
         String email = payload.get("email");
@@ -82,6 +107,11 @@ public class UserController {
         return ResponseEntity.ok(resp);
     }
 
+    @Operation(summary = "Actualizar un usuario")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Usuario actualizado exitosamente"),
+        @ApiResponse(responseCode = "400", description = "Error al actualizar el usuario")
+    })
     @PutMapping("/{id}")
     public ResponseEntity<Object> updateUser(@PathVariable Long id, @RequestBody UserDto dto){
         try{
@@ -92,6 +122,12 @@ public class UserController {
         }
     }
 
+    @Operation(summary = "Eliminar un usuario")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Usuario eliminado exitosamente"),
+        @ApiResponse(responseCode = "404", description = "Usuario no encontrado"),
+        @ApiResponse(responseCode = "400", description = "Error al eliminar el usuario")
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteUser(@PathVariable Long id){
         try{
@@ -105,6 +141,11 @@ public class UserController {
         }
     }
 
+    @Operation(summary = "Actualizar parcialmente un usuario")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Usuario actualizado parcialmente"),
+        @ApiResponse(responseCode = "400", description = "Error al actualizar el usuario")
+    })
     @PatchMapping("/{id}")
     public ResponseEntity<Object> patchUser(@PathVariable Long id, @RequestBody Map<String, Object> updates){
         try{

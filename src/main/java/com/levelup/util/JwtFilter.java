@@ -32,7 +32,7 @@ public class JwtFilter extends OncePerRequestFilter{
         FilterChain filterChain) throws ServletException, IOException {
         String path = request.getRequestURI();
         // Skip filter for auth endpoints (login/register) and H2 console
-        if (path.startsWith("/api/auth") || path.startsWith("/h2-console")) {
+        if (path.startsWith("/api/auth") || path.startsWith("/h2-console") || path.startsWith("/api-docs") || path.startsWith("/swagger-ui") || path.equals("/swagger-ui.html")) {
             filterChain.doFilter(request, response);
             return;
         }

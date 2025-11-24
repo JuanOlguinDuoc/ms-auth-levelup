@@ -42,6 +42,10 @@ public class SecurityConfig {
                     // acceso a endpoints públicos
                     // (no permitir /api/v1/users/by-email sin auth en producción)
                     .requestMatchers("/h2-console/**").permitAll()
+                    .requestMatchers("/api-docs/**").permitAll()
+                    .requestMatchers("/swagger-ui/**").permitAll()
+                    .requestMatchers("/v3/api-docs/**").permitAll()
+                    .requestMatchers("/swagger-ui.html").permitAll()
                     .anyRequest().authenticated())
             .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
             .addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class);

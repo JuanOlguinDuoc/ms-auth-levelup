@@ -11,6 +11,12 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Map;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "Productos", description = "Gestión de productos del ecommerce")
 @RestController
 @RequestMapping("api/v1/products")
 public class ProductController {
@@ -18,11 +24,18 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
+    @Operation(summary = "Listar todos los productos")
+    @ApiResponse(responseCode = "200", description = "Lista de productos obtenida exitosamente")
     @GetMapping
     public List<ProductDto> listProducts(){
         return productService.getProducts();
     }
 
+    @Operation(summary = "Crear un nuevo producto")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Producto creado exitosamente"),
+        @ApiResponse(responseCode = "400", description = "Error al crear el producto")
+    })
     @PostMapping
     public ResponseEntity<Map<String,Object>> createProduct(@RequestBody ProductDto dto){
         try{
@@ -33,7 +46,11 @@ public class ProductController {
         }
     }
 
-    // Nuevo endpoint: subir imagen y crear producto en multipart/form-data
+    @Operation(summary = "Crear producto con imagen (multipart/form-data)")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Producto creado con imagen exitosamente"),
+        @ApiResponse(responseCode = "400", description = "Error al crear el producto")
+    })
     @PostMapping(path = "/upload", consumes = "multipart/form-data")
     public ResponseEntity<Map<String,Object>> createProductWithImage(
             @RequestParam("titulo") String titulo,
@@ -75,6 +92,11 @@ public class ProductController {
         }
     }
 
+    @Operation(summary = "Obtener un producto por ID")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Producto encontrado"),
+        @ApiResponse(responseCode = "404", description = "Producto no encontrado")
+    })
     @GetMapping("/{id}")
     public ResponseEntity<Object> getProduct(@PathVariable Long id){
         ProductDto dto = productService.findById(id);
@@ -82,6 +104,11 @@ public class ProductController {
         return ResponseEntity.ok(dto);
     }
 
+    @Operation(summary = "Actualizar un producto")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Producto actualizado exitosamente"),
+        @ApiResponse(responseCode = "400", description = "Error al actualizar el producto")
+    })
     @PutMapping("/{id}")
     public ResponseEntity<Object> updateProduct(@PathVariable Long id, @RequestBody ProductDto dto){
         try{
@@ -92,6 +119,12 @@ public class ProductController {
         }
     }
 
+    @Operation(summary = "Eliminar un producto")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Producto eliminado exitosamente"),
+        @ApiResponse(responseCode = "404", description = "Producto no encontrado"),
+        @ApiResponse(responseCode = "400", description = "Error al eliminar el producto")
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteProduct(@PathVariable Long id){
         try{
