@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.levelup.model.User;
@@ -20,6 +21,9 @@ public class UserService {
 
     @Autowired
     private RoleRepo roleRepo;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public List<User> getUsers(){
         return userRepo.findAll();
@@ -38,6 +42,11 @@ public class UserService {
 
         if (dto.getRun() != null && userRepo.existsByRun(dto.getRun())) {
             throw new IllegalArgumentException("El RUN ya está registrado");
+        }
+
+        // Encriptar la contraseña antes de guardar
+        if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
+            entity.setPassword(passwordEncoder.encode(dto.getPassword()));
         }
 
         Role role = roleRepo.findByName(dto.getRole()).orElseThrow(() -> new IllegalArgumentException("Role not found: " + dto.getRole()));
@@ -61,7 +70,10 @@ public class UserService {
         existing.setFirstName(dto.getFirstName());
         existing.setLastName(dto.getLastName());
         existing.setEmail(dto.getEmail());
-        if (dto.getPassword() != null) existing.setPassword(dto.getPassword());
+        // Encriptar la contraseña solo si se proporciona una nueva
+        if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
+            existing.setPassword(passwordEncoder.encode(dto.getPassword()));
+        }
         if (dto.getRole() != null) {
             Role role = roleRepo.findByName(dto.getRole()).orElseThrow(() -> new IllegalArgumentException("Role not found: " + dto.getRole()));
             existing.setRole(role);
@@ -84,7 +96,13 @@ public class UserService {
         if (updates.containsKey("firstName")) existing.setFirstName((String) updates.get("firstName"));
         if (updates.containsKey("lastName")) existing.setLastName((String) updates.get("lastName"));
         if (updates.containsKey("email")) existing.setEmail((String) updates.get("email"));
-        if (updates.containsKey("password")) existing.setPassword((String) updates.get("password"));
+        // Encriptar la contraseña si se proporciona en el patch
+        if (updates.containsKey("password")) {
+            String password = (String) updates.get("password");
+            if (password != null && !password.isEmpty()) {
+                existing.setPassword(passwordEncoder.encode(password));
+            }
+        }
 
         User saved = userRepo.save(existing);
         return UserDto.fromEntity(saved);

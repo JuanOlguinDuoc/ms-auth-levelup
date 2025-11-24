@@ -33,8 +33,14 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz
                     .requestMatchers("/api/auth/**").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/auth/Register").permitAll()
                     .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // CORS preflight
-                    .requestMatchers(HttpMethod.POST, "/api/v1/roles").permitAll()
+                    .requestMatchers("/api/v1/roles/**").authenticated()
+                    .requestMatchers("/api/v1/users/**").authenticated()
+                    .requestMatchers("/api/v1/categories/**").authenticated()
+                    .requestMatchers("/api/v1/platforms/**").authenticated()
+                    // acceso a endpoints públicos
+                    // (no permitir /api/v1/users/by-email sin auth en producción)
                     .requestMatchers("/h2-console/**").permitAll()
                     .anyRequest().authenticated())
             .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
@@ -56,12 +62,14 @@ public class SecurityConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:5173")); 
-        configuration.setAllowedMethods(List.of("GET", "PATCH", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-        configuration.setExposedHeaders(List.of("Authorization")); 
-        configuration.setAllowCredentials(true);
+    CorsConfiguration configuration = new CorsConfiguration();
+    // Allow requests from the frontend; use origin patterns to be flexible in dev
+    configuration.setAllowedOriginPatterns(List.of("http://localhost:*", "http://127.0.0.1:*"));
+    configuration.setAllowedMethods(List.of("GET", "PATCH", "POST", "PUT", "DELETE", "OPTIONS"));
+    // Allow all request headers the browser may send
+    configuration.setAllowedHeaders(List.of("*"));
+    configuration.setExposedHeaders(List.of("Authorization")); 
+    configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

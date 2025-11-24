@@ -47,13 +47,13 @@ public class UserController {
     }
 
     @GetMapping("/by-email/{email}")
-    public ResponseEntity<Object> getUser(@PathVariable String email, @PathVariable String password) {
+    public ResponseEntity<Object> getUser(@PathVariable String email, @RequestParam(required = false) String password) {
         // email will be URL-decoded by Spring automatically
         UserDto dto = service.findByEmail(email);
         if (dto == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message","Usuario no encontrado"));
 
         if (password != null) {
-            // If password provided, validate it
+            // If password provided as request param, validate it
             if (!password.equals(dto.getPassword())) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message","Credenciales inválidas"));
             }

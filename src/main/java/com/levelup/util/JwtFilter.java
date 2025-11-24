@@ -30,7 +30,13 @@ public class JwtFilter extends OncePerRequestFilter{
     protected void doFilterInternal(HttpServletRequest request, 
         HttpServletResponse response, 
         FilterChain filterChain) throws ServletException, IOException {
-    
+        String path = request.getRequestURI();
+        // Skip filter for auth endpoints (login/register) and H2 console
+        if (path.startsWith("/api/auth") || path.startsWith("/h2-console")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         final String authHeader = request.getHeader("Authorization");
         
         String email = null;
@@ -45,14 +51,21 @@ public class JwtFilter extends OncePerRequestFilter{
             }
         }
 
-        if(email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails details = this.service.loadUserByUsername(email);
-
-            if(util.validacionToken(jwt) && email.equals(details.getUsername()))  {
-                UsernamePasswordAuthenticationToken authToken =
-                    new UsernamePasswordAuthenticationToken(details, null, details.getAuthorities());
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+        if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            // validate token first; avoid loading user if token invalid
+            if (jwt != null && util.validacionToken(jwt)) {
+                try {
+                    UserDetails details = this.service.loadUserByUsername(email);
+                    if (details != null && email.equals(details.getUsername())) {
+                        UsernamePasswordAuthenticationToken authToken =
+                                new UsernamePasswordAuthenticationToken(details, null, details.getAuthorities());
+                        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        SecurityContextHolder.getContext().setAuthentication(authToken);
+                    }
+                } catch (Exception ex) {
+                    // user not found or other issue - log and continue without auth
+                    logger.warn("User not found or error loading user for email from token: " + email);
+                }
             }
         }
         filterChain.doFilter(request, response);
